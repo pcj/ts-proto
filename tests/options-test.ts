@@ -13,6 +13,7 @@ describe('options', () => {
         "esModuleInterop": false,
         "exportCommonSymbols": true,
         "forceLong": "number",
+        "importMappings": Object {},
         "lowerCaseServiceMethods": true,
         "nestJs": true,
         "oneof": "properties",
@@ -55,4 +56,12 @@ describe('options', () => {
       outputServices: ServiceOption.GRPC,
     });
   });
+
+  it('can set importMappings', () => {
+    const options = optionsFromParameter('M=./google/protobuf/empty=./external/protobufapis/google/protobuf/empty');
+    expect(options).toMatchObject({
+      importMappings: { "./google/protobuf/empty": "./external/protobufapis/google/protobuf/empty" },
+    });
+  });
+
 });

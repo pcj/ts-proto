@@ -56,6 +56,7 @@ export type Options = {
   // An alias of !output
   onlyTypes: boolean;
   emitImportedFiles: boolean;
+  importMappings: { [key: string]: string };
 };
 
 export function defaultOptions(): Options {
@@ -86,6 +87,7 @@ export function defaultOptions(): Options {
     outputSchema: false,
     onlyTypes: false,
     emitImportedFiles: true,
+    importMappings: {},
   };
 }
 
@@ -134,16 +136,26 @@ export function optionsFromParameter(parameter: string): Options {
 // A very naive parse function, eventually could/should use iots/runtypes
 function parseParameter(parameter: string): Options {
   const options = {} as any;
-  const pairs = parameter.split(',').map((s) => s.split('='));
-  pairs.forEach(([key, value]) => {
-    options[key] = value === 'true' ? true : value === 'false' ? false : value;
+  options.importMappings = {};
+  parameter.split(',').forEach((s) => {
+    if (s.startsWith("M=")) {
+      const pair = s.slice("M=".length).split('=');
+      const key = pair[0];
+      const value = pair[1];
+      options.importMappings[key] = value;
+    } else {
+      const pair = s.split('=');
+      const key = pair[0];
+      const value = pair[1];
+      options[key] = value === 'true' ? true : value === 'false' ? false : value;
+    }
   });
   return options;
 }
 
-export function getTsPoetOpts(options: Options): { forceDefaultImport?: string[] } {
+export function getTsPoetOpts(options: Options): { forceDefaultImport?: string[], importMappings?: { [key: string]: string } } {
   if (options.esModuleInterop) {
-    return { forceDefaultImport: ['protobufjs/minimal'] };
+    return { forceDefaultImport: ['protobufjs/minimal'], importMappings: options.importMappings };
   } else {
     return {};
   }

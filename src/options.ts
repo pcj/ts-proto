@@ -138,8 +138,8 @@ function parseParameter(parameter: string): Options {
   const options = {} as any;
   options.importMappings = {};
   parameter.split(',').forEach((s) => {
-    if (s.startsWith("M=")) {
-      const pair = s.slice("M=".length).split('=');
+    if (s.startsWith('M=')) {
+      const pair = s.slice('M='.length).split('=');
       const key = pair[0];
       const value = pair[1];
       options.importMappings[key] = value;
@@ -153,7 +153,9 @@ function parseParameter(parameter: string): Options {
   return options;
 }
 
-export function getTsPoetOpts(options: Options): { forceDefaultImport?: string[], importMappings?: { [key: string]: string } } {
+export function getTsPoetOpts(
+  options: Options
+): { forceDefaultImport?: string[]; importMappings?: { [key: string]: string } } {
   if (options.esModuleInterop) {
     return { forceDefaultImport: ['protobufjs/minimal'], importMappings: options.importMappings };
   } else {

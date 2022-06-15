@@ -60,8 +60,7 @@ describe('options', () => {
   it('can set importMappings', () => {
     const options = optionsFromParameter('M=./google/protobuf/empty=./external/protobufapis/google/protobuf/empty');
     expect(options).toMatchObject({
-      importMappings: { "./google/protobuf/empty": "./external/protobufapis/google/protobuf/empty" },
+      importMappings: { './google/protobuf/empty': './external/protobufapis/google/protobuf/empty' },
     });
   });
-
 });

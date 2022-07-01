@@ -5,7 +5,6 @@ import { Context } from './context';
 import { assertInstanceOf, FormattedMethodDescriptor, maybePrefixPackage } from './utils';
 
 const grpc = imp('grpc@@improbable-eng/grpc-web');
-const share = imp('share@rxjs/operators');
 const take = imp('take@rxjs/operators');
 const BrowserHeaders = imp('BrowserHeaders@browser-headers');
 const Observable = imp('Observable@rxjs');
@@ -330,7 +329,7 @@ function createInvokeMethod() {
           observer.add(() => client.close());
         });
         upStream();
-      }).pipe(${share}());
+      }).pipe();
     }
   `;
 }

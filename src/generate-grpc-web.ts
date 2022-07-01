@@ -64,6 +64,16 @@ function generateRpcMethod(ctx: Context, serviceDesc: ServiceDescriptorProto, me
   }
 
   const method = methodDesc.serverStreaming ? 'invoke' : 'unary';
+  if (methodDesc.clientStreaming) {
+    return code`
+    ${methodDesc.formattedName}(
+      request: ${inputType},
+      metadata?: grpc.Metadata,
+    ): ${returns} {
+      throw new Error('client-side streaming is not supported');      
+    }
+    `;
+  }
   return code`
     ${methodDesc.formattedName}(
       request: ${inputType},
@@ -99,6 +109,9 @@ export function generateGrpcMethodDesc(
   serviceDesc: ServiceDescriptorProto,
   methodDesc: MethodDescriptorProto
 ): Code {
+  if (methodDesc.clientStreaming) {
+    return code``;
+  }
   const inputType = requestType(ctx, methodDesc);
   const outputType = responseType(ctx, methodDesc);
 

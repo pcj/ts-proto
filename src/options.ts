@@ -64,6 +64,7 @@ export type Options = {
   unknownFields: boolean;
   usePrototypeForDefaults: boolean;
   useJsonWireFormat: boolean;
+  importMappings: { [key: string]: string };
 };
 
 export function defaultOptions(): Options {
@@ -102,6 +103,7 @@ export function defaultOptions(): Options {
     unknownFields: false,
     usePrototypeForDefaults: false,
     useJsonWireFormat: false,
+    importMappings: {},
   };
 }
 
@@ -190,13 +192,23 @@ export function optionsFromParameter(parameter: string | undefined): Options {
 // A very naive parse function, eventually could/should use iots/runtypes
 function parseParameter(parameter: string): Options {
   const options = {} as any;
-  const pairs = parameter.split(',').map((s) => s.split('='));
-  pairs.forEach(([key, _value]) => {
-    const value = _value === 'true' ? true : _value === 'false' ? false : _value;
-    if (options[key]) {
-      options[key] = [options[key], value];
+  options.importMappings = {};
+  parameter.split(',').forEach((s) => {
+    if (s.startsWith('M=')) {
+      const pair = s.slice('M='.length).split('=');
+      const key = pair[0];
+      const value = pair[1];
+      options.importMappings[key] = value;
     } else {
-      options[key] = value;
+      const pair = s.split('=');
+      const key = pair[0];
+      const _value = pair[1];
+      const value = _value === 'true' ? true : _value === 'false' ? false : _value;
+      if (options[key]) {
+        options[key] = [options[key], value];
+      } else {
+        options[key] = value;
+      }
     }
   });
   return options;

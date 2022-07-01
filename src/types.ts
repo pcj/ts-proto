@@ -294,7 +294,11 @@ export function createTypeMap(request: CodeGeneratorRequest, options: Options): 
   const typeMap: TypeMap = new Map();
   for (const file of request.protoFile) {
     // We assume a file.name of google/protobuf/wrappers.proto --> a module path of google/protobuf/wrapper.ts
-    const moduleName = file.name.replace('.proto', '');
+    let moduleName = file.name.replace('.proto', '');
+    // Override modulename if set by 'M' option
+    if (options.importMappings[file.name]) {
+      moduleName = options.importMappings[file.name];
+    }
     // So given a fullName like FooMessage_InnerMessage, proto will see that as package.name.FooMessage.InnerMessage
     function saveMapping(
       tsFullName: string,

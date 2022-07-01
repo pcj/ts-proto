@@ -173,6 +173,9 @@ export function packedType(type: FieldDescriptorProto_Type): number | undefined 
 }
 
 export function defaultValue(ctx: Context, field: FieldDescriptorProto): any {
+  if (isOptionalField(field)) {
+    return 'undefined';
+  }
   const { typeMap, options, utils } = ctx;
   switch (field.type) {
     case FieldDescriptorProto_Type.TYPE_DOUBLE:
@@ -352,7 +355,7 @@ export function isOptionalProperty(
   return (
     (optionalMessages && isMessage(field) && !isRepeated(field)) ||
     (optionalAll && !messageOptions?.mapEntry) ||
-    field.proto3Optional
+    isOptionalField(field)
   );
 }
 
@@ -383,6 +386,10 @@ export function isWithinOneOfThatShouldBeUnion(options: Options, field: FieldDes
 
 export function isRepeated(field: FieldDescriptorProto): boolean {
   return field.label === FieldDescriptorProto_Label.LABEL_REPEATED;
+}
+
+export function isOptionalField(field: FieldDescriptorProto): boolean {
+  return field.proto3Optional || field.label === FieldDescriptorProto_Label.LABEL_OPTIONAL;
 }
 
 export function isLong(field: FieldDescriptorProto): boolean {
@@ -484,8 +491,8 @@ export function valueTypeName(ctx: Context, typeName: string): Code | undefined 
       return ctx.options.env === EnvOption.NODE
         ? code`Buffer`
         : ctx.options.useJsonWireFormat
-        ? code`string`
-        : code`Uint8Array`;
+          ? code`string`
+          : code`Uint8Array`;
     case '.google.protobuf.ListValue':
       return code`Array<any>`;
     case '.google.protobuf.Value':
@@ -621,6 +628,7 @@ export function toTypeName(ctx: Context, messageDesc: DescriptorProto, field: Fi
   if (
     (!isWithinOneOf(field) &&
       isMessage(field) &&
+      field.label !== FieldDescriptorProto_Label.LABEL_REQUIRED &&
       (options.useOptionals === false || options.useOptionals === 'none')) ||
     (isWithinOneOf(field) && options.oneof === OneofOption.PROPERTIES) ||
     (isWithinOneOf(field) && field.proto3Optional)
@@ -637,12 +645,12 @@ export function detectMapType(
   fieldDesc: FieldDescriptorProto
 ):
   | {
-      messageDesc: DescriptorProto;
-      keyField: FieldDescriptorProto;
-      keyType: Code;
-      valueField: FieldDescriptorProto;
-      valueType: Code;
-    }
+    messageDesc: DescriptorProto;
+    keyField: FieldDescriptorProto;
+    keyType: Code;
+    valueField: FieldDescriptorProto;
+    valueType: Code;
+  }
   | undefined {
   const { typeMap } = ctx;
   if (

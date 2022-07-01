@@ -22,6 +22,7 @@ import {
   isMessage,
   isObjectId,
   isOptionalProperty,
+  isOptionalField,
   isPrimitive,
   isRepeated,
   isScalar,
@@ -774,10 +775,10 @@ function generateBaseInstanceFactory(
     const val = isWithinOneOf(field)
       ? 'undefined'
       : isMapType(ctx, messageDesc, field)
-      ? '{}'
-      : isRepeated(field)
-      ? '[]'
-      : defaultValue(ctx, field);
+        ? '{}'
+        : isRepeated(field)
+          ? '[]'
+          : defaultValue(ctx, field);
 
     fields.push(code`${name}: ${val}`);
   }
@@ -1083,6 +1084,12 @@ function generateEncode(ctx: Context, fullName: string, messageDesc: DescriptorP
       `);
     } else if (isWithinOneOf(field)) {
       // Oneofs don't have a default value check b/c they need to denote which-oneof presence
+      chunks.push(code`
+        if (message.${fieldName} !== undefined) {
+          ${writeSnippet(`message.${fieldName}`)};
+        }
+      `);
+    } else if (isOptionalField(field)) {
       chunks.push(code`
         if (message.${fieldName} !== undefined) {
           ${writeSnippet(`message.${fieldName}`)};

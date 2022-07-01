@@ -44,11 +44,7 @@ export function generateNestjsServiceController(
     params.push(code`request: ${requestType(ctx, methodDesc)}`);
     // Use metadata as last argument for interface only configuration
     if (options.addGrpcMetadata) {
-      const q = options.addNestjsRestParameter ? '' : '?';
-      params.push(code`metadata${q}: ${Metadata}`);
-    }
-    if (options.addNestjsRestParameter) {
-      params.push(code`...rest: any`);
+      params.push(code`metadata?: ${Metadata}`);
     }
 
     // Return observable for interface only configuration, passing returnObservable=true and methodDesc.serverStreaming=true
@@ -114,11 +110,7 @@ export function generateNestjsServiceClient(
     params.push(code`request: ${requestType(ctx, methodDesc)}`);
     // Use metadata as last argument for interface only configuration
     if (options.addGrpcMetadata) {
-      const q = options.addNestjsRestParameter ? '' : '?';
-      params.push(code`metadata${q}: ${Metadata}`);
-    }
-    if (options.addNestjsRestParameter) {
-      params.push(code`...rest: any`);
+      params.push(code`metadata?: ${Metadata}`);
     }
 
     // Return observable since nestjs client always returns an Observable
